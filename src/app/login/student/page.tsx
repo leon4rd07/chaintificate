@@ -1,38 +1,44 @@
-// app/login/student/page.tsx
+
+
+"use client";
+
 import React from "react";
 import Link from "next/link";
-import Header from "../../components/Header"; 
-const BACKGROUND_IMAGE_URL = "login.png";
+import Header from "../../components/Header";
+import { useRouter } from "next/navigation"; 
+
+const BACKGROUND_IMAGE_URL ="/login.png";
 
 export default function StudentLoginPage() {
+  const router = useRouter(); 
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    router.push("/student/dashboard"); 
+  };
+
   return (
     <div className="min-h-screen bg-white">
-      {/* Header Biru */}
       <Header />
 
       <div className="flex min-h-[calc(100vh-69px)]">
-        {/* Kolom Kiri: Background Image (50% lebar) */}
         <div className="hidden lg:block w-1/2 relative">
           <div
             className="absolute inset-0 bg-cover bg-center"
             style={{ backgroundImage: `url(${BACKGROUND_IMAGE_URL})` }}
           />
-
-          {/* Gradient Lembut yang Menyatu dengan Sisi Kanan Putih */}
           <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/50 to-white"></div>
         </div>
 
-        {/* Kolom Kanan: Formulir Login (50% lebar) */}
         <div className="w-full lg:w-1/2 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-20 bg-white">
           <div className="w-full max-w-sm space-y-8">
-            {" "}
-            {/* Menggunakan max-w-sm agar form tidak terlalu lebar */}
             <h2 className="text-3xl font-bold text-gray-900 text-center lg:text-left">
               Login to your account
             </h2>
-            <form className="mt-8 space-y-6">
+
+            <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
               <div className="rounded-md -space-y-px">
-                {/* Email/Address Input */}
                 <div>
                   <input
                     type="email"
@@ -41,7 +47,6 @@ export default function StudentLoginPage() {
                     placeholder="Email Address"
                   />
                 </div>
-                {/* Password Input */}
                 <div className="pt-4">
                   <input
                     type="password"
@@ -52,7 +57,6 @@ export default function StudentLoginPage() {
                 </div>
               </div>
 
-              {/* Tombol Login */}
               <div className="pt-6">
                 <button
                   type="submit"
@@ -62,7 +66,6 @@ export default function StudentLoginPage() {
                 </button>
               </div>
 
-              {/* Link Create Account */}
               <div className="text-center text-sm pt-2">
                 <Link
                   href="/register/student"

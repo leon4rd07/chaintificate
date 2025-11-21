@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 const Header: React.FC = () => {
-  const LOGO_SRC = "/logo.png"; // Your logo path
+  const LOGO_SRC = "/logo.png"; 
 
   return (
     <header className="flex justify-between items-center py-4 px-6 md:px-12 lg:px-24 bg-[#2979FF] shadow-lg">
@@ -38,16 +38,12 @@ const Header: React.FC = () => {
         </Link>
       </nav>
 
-      {/* --- REVISED CONNECT WALLET BUTTON --- */}
       <button className="flex items-center space-x-2 bg-[#0092FF] hover:bg-[#007ACF] text-white font-semibold text-base py-2 px-5 rounded-full transition-colors duration-150 shadow-md">
         <div className="relative flex items-center justify-center">
-          {/* The vibrant green dot */}
           <span className="relative inline-flex rounded-full h-3 w-3 bg-[#00FF00]"></span>{" "}
-          {/* Increased size and vibrant green color */}
         </div>
         <span>Connect Wallet</span>
       </button>
-      {/* ------------------------------------ */}
     </header>
   );
 };

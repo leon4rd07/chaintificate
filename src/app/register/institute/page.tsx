@@ -1,22 +1,17 @@
-// app/login/institute/page.tsx
+
 import React from "react";
 import Header from "../../components/Header";
 
-// Ganti dengan URL gambar institusi yang sebenarnya
 const BACKGROUND_IMAGE_URL = "/institute.png";
 
 export default function InstituteRegistrationPage() {
   return (
     <div className="min-h-screen bg-white">
-      {/* 1. Header Biru Solid */}
       <Header />
 
-      {/* 2. Container utama untuk layout 2 kolom */}
       <div className="flex min-h-[calc(100vh-69px)]">
-        {/* Kiri: Bagian Form Registrasi Institute */}
         <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white">
           <div className="w-full max-w-md">
-            {/* Judul dan Teks harus Gelap */}
             <h1 className="text-3xl font-bold mb-8 text-gray-800 text-left">
               Register your Institute
             </h1>
@@ -56,18 +51,12 @@ export default function InstituteRegistrationPage() {
           </div>
         </div>
 
-        {/* Kanan: Bagian Gambar Latar Belakang (50% lebar) */}
         <div className="hidden lg:block w-1/2 relative">
           {" "}
-          {/* Hapus bg-gray-100 */}
           <div
             className="absolute inset-0 bg-cover bg-center"
             style={{ backgroundImage: `url(${BACKGROUND_IMAGE_URL})` }}
           ></div>
-          {/*
-            REVISI GRADIENT: Menggunakan gradasi yang lebih soft (via-transparent) 
-            dan hanya memudar dari kanan ke tengah (left).
-          */}
           <div className="absolute inset-0 bg-gradient-to-l from-white/0 via-transparent to-white"></div>
         </div>
       </div>

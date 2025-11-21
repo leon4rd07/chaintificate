@@ -13,7 +13,6 @@ const FAQSection: React.FC = () => {
           Temukan Jawaban Untuk pertanyaan Chaintificate
         </p>
 
-        {/* FAQ 1 (Terbuka) */}
         <div className="bg-white border border-gray-200 rounded-lg p-6 mb-4 shadow-lg">
           <h3 className="text-lg font-semibold text-gray-800 mb-3">
             Apa Itu Chaintificate ?
@@ -25,7 +24,6 @@ const FAQSection: React.FC = () => {
           </p>
         </div>
 
-        {/* FAQ 2 (Tertutup) */}
         <div className="bg-white border border-gray-200 rounded-lg p-5 cursor-pointer hover:bg-gray-50 transition-colors duration-150 shadow-md">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold text-gray-800">

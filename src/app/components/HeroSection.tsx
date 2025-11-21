@@ -1,4 +1,4 @@
-// components/HeroSection.tsx
+
 import React from "react";
 import { Search, Link as LinkIcon } from "lucide-react";
 
@@ -16,7 +16,6 @@ const HeroSection: React.FC = () => {
         securely
       </p>
 
-      {/* Kontainer Putih untuk Search */}
       <div className="max-w-xl mx-auto p-10 bg-white rounded-lg shadow-xl border border-gray-100">
         <h3 className="text-xl font-bold mb-4 text-gray-800">
           Search Certificate By link

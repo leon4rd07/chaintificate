@@ -1,30 +1,25 @@
-// app/register/student/page.tsx
+
 import React from "react";
 import Link from "next/link";
-import Header from "../../components/Header"; // Sesuaikan path impor Header
+import Header from "../../components/Header"; 
 
-// Ganti dengan path gambar Anda di folder public, misalnya: '/images/students.jpg'
 const BACKGROUND_IMAGE_URL = "/login.png";
 
 export default function StudentRegisterPage() {
   return (
     <div className="min-h-screen bg-white">
-      {/* Header Biru */}
       <Header />
 
       <div className="flex min-h-[calc(100vh-69px)]">
-        {/* Kolom Kiri: Background Image (50% lebar) */}
         <div className="hidden lg:block w-1/2 relative">
           <div
             className="absolute inset-0 bg-cover bg-center"
             style={{ backgroundImage: `url(${BACKGROUND_IMAGE_URL})` }}
           />
 
-          {/* Gradient Lembut yang Menyatu dengan Sisi Kanan Putih */}
           <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/50 to-white"></div>
         </div>
 
-        {/* Kolom Kanan: Formulir Registrasi (50% lebar) */}
         <div className="w-full lg:w-1/2 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-20 bg-white">
           <div className="w-full max-w-sm space-y-8">
             <h2 className="text-3xl font-bold text-gray-900 text-center lg:text-left">
@@ -33,7 +28,6 @@ export default function StudentRegisterPage() {
 
             <form className="mt-8 space-y-6">
               <div className="rounded-md -space-y-px">
-                {/* Username Input */}
                 <div>
                   <input
                     type="text"
@@ -43,7 +37,6 @@ export default function StudentRegisterPage() {
                   />
                 </div>
 
-                {/* Email Input */}
                 <div className="pt-4">
                   <input
                     type="email"
@@ -53,7 +46,6 @@ export default function StudentRegisterPage() {
                   />
                 </div>
 
-                {/* Password Input */}
                 <div className="pt-4">
                   <input
                     type="password"
@@ -63,7 +55,6 @@ export default function StudentRegisterPage() {
                   />
                 </div>
 
-                {/* Confirm Password Input */}
                 <div className="pt-4">
                   <input
                     type="password"
@@ -74,7 +65,6 @@ export default function StudentRegisterPage() {
                 </div>
               </div>
 
-              {/* Tombol Register */}
               <div className="pt-6">
                 <button
                   type="submit"
@@ -84,7 +74,6 @@ export default function StudentRegisterPage() {
                 </button>
               </div>
 
-              {/* Link Login */}
               <div className="text-center text-sm pt-2">
                 <Link
                   href="/login/student"
