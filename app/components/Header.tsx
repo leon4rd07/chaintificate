@@ -35,6 +35,12 @@ const Header: React.FC = () => {
               Dashboard
             </Link>
             <Link
+              href="/job-market"
+              className="hover:text-gray-200 transition-colors duration-200"
+            >
+              Job Market
+            </Link>
+            <Link
               href="/about-us"
               className="hover:text-gray-200 transition-colors duration-200"
             >

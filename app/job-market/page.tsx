@@ -1,0 +1,198 @@
+"use client";
+
+import React, { useState } from "react";
+import Header from "../components/Header";
+import { Button } from "@/app/components/ui/button";
+import { Input } from "@/app/components/ui/input";
+import { Search, MapPin, Bookmark, CheckSquare, Square } from "lucide-react";
+
+// --- MOCK DATA ---
+const jobs = [
+    {
+        id: 1,
+        title: "Digital Marketing Specialist",
+        company: "PT Kreatif Digital Indonesia",
+        location: "Jakarta Selatan, DKI Jakarta",
+        salary: "Rp 6 jt-8 jt",
+        tags: ["Penuh Waktu", "1-3 tahun", "Minimal Sarjana (S1)", "SEO/SEM"],
+        postedTime: "10 menit yang lalu",
+        isPremium: true,
+        logo: "https://via.placeholder.com/40",
+        requiredCertificate: "Sertifikat Google Digital Garage atau setara",
+    },
+    {
+        id: 2,
+        title: "Human Resources Manager",
+        company: "PT Solusi SDM Unggul",
+        location: "Bandung, Jawa Barat",
+        salary: "Rp 10 jt-15 jt",
+        tags: ["Penuh Waktu", "5-10 tahun", "Minimal Sarjana (S1)", "Recruitment"],
+        postedTime: "25 menit yang lalu",
+        isPremium: false,
+        logo: "https://via.placeholder.com/40",
+        requiredCertificate: "Sertifikat Manajemen SDM (BNSP) diutamakan",
+    },
+    {
+        id: 3,
+        title: "Financial Analyst",
+        company: "PT Keuangan Maju Bersama",
+        location: "Surabaya, Jawa Timur",
+        salary: "Rp 7 jt-9 jt",
+        tags: ["Penuh Waktu", "3-5 tahun", "Minimal Sarjana (S1)", "Finance"],
+        postedTime: "40 menit yang lalu",
+        isPremium: false,
+        logo: "https://via.placeholder.com/40",
+        requiredCertificate: "Sertifikat CFA Level 1 atau Brevet A & B",
+    },
+    {
+        id: 4,
+        title: "Sales Executive",
+        company: "PT Distribusi Nasional",
+        location: "Medan, Sumatera Utara",
+        salary: "Rp 4 jt-6 jt",
+        tags: ["Full-time", "1-3 tahun", "Minimal SMA/SMK", "Sales"],
+        postedTime: "1 jam yang lalu",
+        isPremium: false,
+        logo: "https://via.placeholder.com/40",
+        requiredCertificate: "Ijazah SMA/SMK Sederajat, Sertifikat Pelatihan Sales (Opsional)",
+    },
+    {
+        id: 5,
+        title: "Product & Network Operations Support",
+        company: "PT Mitra Galang Sejahtera",
+        location: "Duren Sawit, Jakarta Timur, DKI Jakarta",
+        salary: "Rp 3,5 jt-4,5 jt",
+        tags: ["Penuh Waktu", "1-3 tahun", "Minimal Sarjana (S1)", "LAN"],
+        postedTime: "2 jam yang lalu",
+        isPremium: false,
+        logo: "https://via.placeholder.com/40",
+        requiredCertificate: "Sertifikat CCNA atau CompTIA Network+",
+    },
+];
+
+const FilterSection = ({ title, options }: { title: string, options: string[] }) => (
+    <div className="mb-6">
+        <h3 className="font-semibold text-gray-700 mb-3">{title}</h3>
+        <div className="space-y-2">
+            {options.map((option, index) => (
+                <label key={index} className="flex items-center space-x-2 cursor-pointer group">
+                    <div className="w-4 h-4 border border-gray-300 rounded flex items-center justify-center group-hover:border-blue-500">
+                        {/* Checkbox logic would go here */}
+                    </div>
+                    <span className="text-gray-600 text-sm group-hover:text-blue-600">{option}</span>
+                </label>
+            ))}
+        </div>
+    </div>
+);
+
+export default function JobMarketPage() {
+    return (
+        <div className="min-h-screen bg-[#F8FAFC] font-sans pb-20">
+            <Header />
+
+            {/* Search Bar Section */}
+            <div className="bg-white border-b border-gray-200 sticky top-[73px] z-40 shadow-sm">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                    <div className="flex flex-col md:flex-row gap-4">
+                        <div className="relative flex-grow">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                            <Input
+                                placeholder="Cari Nama Pekerjaan, Skill, dan Perusahaan"
+                                className="pl-10 bg-gray-50 border-gray-200 h-12 text-base"
+                            />
+                        </div>
+                        <div className="relative flex-grow md:max-w-md">
+                            <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                            <Input
+                                placeholder="All Cities/Provinces"
+                                className="pl-10 bg-gray-50 border-gray-200 h-12 text-base"
+                            />
+                        </div>
+                        <Button className="bg-[#0092FF] hover:bg-[#007ACF] text-white font-bold px-8 h-12 text-base rounded-lg shadow-md">
+                            CARI
+                        </Button>
+                    </div>
+                </div>
+            </div>
+
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <h1 className="text-2xl font-bold text-gray-900 mb-6">Lowongan Kerja Terbaru</h1>
+
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+
+                    {/* Left Sidebar: Filters */}
+                    <div className="hidden lg:block lg:col-span-1">
+
+                        <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+                            <FilterSection
+                                title="Prioritaskan"
+                                options={["Paling Relevan", "Baru Ditambahkan"]}
+                            />
+                            <hr className="my-4 border-gray-100" />
+                            <FilterSection
+                                title="Tipe Pekerjaan"
+                                options={["Penuh Waktu", "Kontrak", "Magang", "Paruh Waktu", "Freelance", "Harian"]}
+                            />
+                            <hr className="my-4 border-gray-100" />
+                            <FilterSection
+                                title="Kebijakan Kerja"
+                                options={["Kerja di kantor", "Remote/Dari rumah", "Hybrid"]}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Right Content: Job List */}
+                    <div className="lg:col-span-3 space-y-4">
+                        {jobs.map((job) => (
+                            <div key={job.id} className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer group relative">
+                                <div className="flex justify-between items-start mb-2">
+                                    <h2 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{job.title}</h2>
+                                    <span className="text-blue-600 font-bold text-sm whitespace-nowrap">{job.salary}</span>
+                                </div>
+
+                                <div className="flex flex-wrap gap-2 mb-4">
+                                    {job.isPremium && (
+                                        <span className="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs font-semibold">Perusahaan Premium</span>
+                                    )}
+                                    {job.tags.map((tag, idx) => (
+                                        <span key={idx} className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs font-medium">{tag}</span>
+                                    ))}
+                                    {job.tags.length > 3 && <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs font-medium">+2</span>}
+                                </div>
+
+                                {/* Required Certificate Section */}
+                                <div className="flex items-start gap-2 mb-4 bg-blue-50 p-3 rounded-lg border border-blue-100">
+                                    <CheckSquare className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                                    <div>
+                                        <p className="text-xs font-bold text-blue-800 uppercase tracking-wide mb-1">Syarat Sertifikat / Ijazah</p>
+                                        <p className="text-sm text-gray-700">{job.requiredCertificate}</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
+                                        {/* Logo Placeholder */}
+                                        <div className="text-xs font-bold text-gray-400">Logo</div>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-semibold text-blue-600 hover:underline">{job.company}</p>
+                                        <p className="text-xs text-gray-500 flex items-center gap-1">
+                                            <MapPin className="h-3 w-3" /> {job.location}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-50">
+                                    <p className="text-xs text-green-600 font-medium">{job.postedTime}</p>
+                                    <Bookmark className="h-5 w-5 text-gray-400 hover:text-blue-600" />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                </div>
+            </main>
+        </div>
+    );
+}
