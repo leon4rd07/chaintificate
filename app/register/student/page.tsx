@@ -1,11 +1,48 @@
+"use client";
 
 import React from "react";
 import Link from "next/link";
-import Header from "../../components/Header"; 
+import Header from "../../components/Header";
+import { useAccount } from "wagmi";
+import { useRouter } from "next/navigation";
 
 const BACKGROUND_IMAGE_URL = "/login.png";
 
 export default function StudentRegisterPage() {
+  const { address } = useAccount();
+  const router = useRouter();
+  const [name, setName] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!address) return;
+
+    setLoading(true);
+    try {
+      const response = await fetch("/api/student/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          wallet: address,
+        }),
+      });
+
+      if (response.ok) {
+        router.push("/student/dashboard");
+      } else {
+        console.error("Registration failed");
+      }
+    } catch (error) {
+      console.error("Error registering:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white">
       <Header />
@@ -26,25 +63,35 @@ export default function StudentRegisterPage() {
               Register your account
             </h2>
 
-            <form className="mt-8 space-y-6">
+            <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
               <div className="rounded-md -space-y-px">
                 <div>
                   <input
                     type="text"
                     required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                     className="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-[#2979FF] focus:border-[#2979FF] focus:z-10 sm:text-base"
                     placeholder="Username"
                   />
                 </div>
-                
+                <div className="mt-4">
+                  <input
+                    type="text"
+                    disabled
+                    value={address || "Connect Wallet"}
+                    className="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-500 bg-gray-100 rounded-lg focus:outline-none sm:text-base"
+                  />
+                </div>
               </div>
 
               <div className="pt-6">
                 <button
                   type="submit"
-                  className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-base font-medium rounded-lg text-white bg-[#2979FF] hover:bg-[#2563D0] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2979FF]"
+                  disabled={loading || !address}
+                  className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-base font-medium rounded-lg text-white bg-[#2979FF] hover:bg-[#2563D0] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2979FF] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Register
+                  {loading ? "Registering..." : "Register"}
                 </button>
               </div>
 
