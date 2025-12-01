@@ -13,37 +13,48 @@ datasource db {
   provider = "postgresql"
 }
 
-model Student{
-  id String @id @default(cuid())
-  name String
-  wallet String @unique
+model Student {
+  id        String   @id @default(cuid())
+  name      String
+  wallet    String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   certificates Certificate[]
 }
 
-model Institution{
-  id String @id @default(cuid())
-  name String
-  wallet String @unique
+model Institution {
+  id          String   @id @default(cuid())
+  name        String
+  wallet      String   @unique
   description String
-  contact String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  contact     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   certificates Certificate[]
 }
 
-model Certificate{
-  id String @id @default(cuid())
-  studentId String
+model Certificate {
+  id            String   @id @default(cuid())
+  studentId     String
   institutionId String
-  name String
-  wallet String @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  name          String
+  wallet        String   @unique
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  student Student @relation(fields: [studentId], references: [id])
+  student     Student     @relation(fields: [studentId], references: [id])
   institution Institution @relation(fields: [institutionId], references: [id])
+}
+
+model JobVacancy {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  location    String
+  type        String
+  salary      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
