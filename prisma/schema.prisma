@@ -49,12 +49,28 @@ model Certificate {
 }
 
 model JobVacancy {
-  id          String   @id @default(cuid())
-  title       String
-  description String
-  location    String
-  type        String
-  salary      String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              String   @id @default(cuid())
+  companyName     String
+  position        String
+  category        Category
+  jobDescription  String[]
+  jobRequirements String[]
+  location        String
+  type            Type
+  salary          String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+enum Category {
+  Technology
+  Business
+  Health
+  Education
+  Entertainment
+}
+
+enum Type {
+  FullTime
+  PartTime
 }
