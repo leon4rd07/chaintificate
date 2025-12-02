@@ -25,11 +25,15 @@ interface JobVacancyResponse {
     meta: Meta;
 }
 
-export const useJobVacancy = (page: number = 1) => {
+export const useJobVacancy = (page: number = 1, category?: string, type?: string) => {
     return useQuery<JobVacancyResponse>({
-        queryKey: ['job-vacancies', page],
+        queryKey: ['job-vacancies', page, category, type],
         queryFn: async () => {
-            const response = await fetch(`/api/job-vacancies?page=${page}`);
+            const params = new URLSearchParams({ page: page.toString() });
+            if (category) params.append('category', category);
+            if (type) params.append('type', type);
+
+            const response = await fetch(`/api/job-vacancies?${params.toString()}`);
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }

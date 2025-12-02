@@ -7,14 +7,27 @@ import { Input } from "@/app/components/ui/input";
 import { Search, MapPin, Bookmark, CheckSquare, ChevronLeft, ChevronRight } from "lucide-react";
 import { useJobVacancy } from "@/hooks/useJobVacancy";
 
-const FilterSection = ({ title, options }: { title: string, options: string[] }) => (
+const FilterSection = ({
+    title,
+    options,
+    selectedOption,
+    onSelect
+}: {
+    title: string,
+    options: string[],
+    selectedOption: string | undefined,
+    onSelect: (option: string) => void
+}) => (
     <div className="mb-6">
         <h3 className="font-semibold text-gray-700 mb-3">{title}</h3>
         <div className="space-y-2">
             {options.map((option, index) => (
                 <label key={index} className="flex items-center space-x-2 cursor-pointer group">
-                    <div className="w-4 h-4 border border-gray-300 rounded flex items-center justify-center group-hover:border-blue-500">
-                        {/* Checkbox logic would go here */}
+                    <div
+                        className={`w-4 h-4 border rounded flex items-center justify-center group-hover:border-blue-500 ${selectedOption === option ? 'bg-blue-500 border-blue-500' : 'border-gray-300'}`}
+                        onClick={() => onSelect(option === selectedOption ? "" : option)}
+                    >
+                        {selectedOption === option && <div className="w-2 h-2 bg-white rounded-full" />}
                     </div>
                     <span className="text-gray-600 text-sm group-hover:text-blue-600">{option}</span>
                 </label>
@@ -25,7 +38,10 @@ const FilterSection = ({ title, options }: { title: string, options: string[] })
 
 export default function JobMarketPage() {
     const [page, setPage] = useState(1);
-    const { data, isLoading, isError } = useJobVacancy(page);
+    const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
+    const [selectedType, setSelectedType] = useState<string | undefined>(undefined);
+
+    const { data, isLoading, isError } = useJobVacancy(page, selectedCategory, selectedType);
 
     const handlePrevPage = () => {
         setPage((prev) => Math.max(1, prev - 1));
@@ -35,6 +51,16 @@ export default function JobMarketPage() {
         if (data?.meta && page < data.meta.lastPage) {
             setPage((prev) => prev + 1);
         }
+    };
+
+    const handleCategorySelect = (category: string) => {
+        setSelectedCategory(category === "" ? undefined : category);
+        setPage(1); // Reset to page 1 when filter changes
+    };
+
+    const handleTypeSelect = (type: string) => {
+        setSelectedType(type === "" ? undefined : type);
+        setPage(1); // Reset to page 1 when filter changes
     };
 
     return (
@@ -76,18 +102,17 @@ export default function JobMarketPage() {
 
                         <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
                             <FilterSection
-                                title="Prioritaskan"
-                                options={["Paling Relevan", "Baru Ditambahkan"]}
+                                title="Kategori"
+                                options={["Technology", "Business", "Health", "Education", "Entertainment"]}
+                                selectedOption={selectedCategory}
+                                onSelect={handleCategorySelect}
                             />
                             <hr className="my-4 border-gray-100" />
                             <FilterSection
                                 title="Tipe Pekerjaan"
-                                options={["Penuh Waktu", "Kontrak", "Magang", "Paruh Waktu", "Freelance", "Harian"]}
-                            />
-                            <hr className="my-4 border-gray-100" />
-                            <FilterSection
-                                title="Kebijakan Kerja"
-                                options={["Kerja di kantor", "Remote/Dari rumah", "Hybrid"]}
+                                options={["FullTime", "PartTime"]}
+                                selectedOption={selectedType}
+                                onSelect={handleTypeSelect}
                             />
                         </div>
                     </div>
@@ -108,7 +133,6 @@ export default function JobMarketPage() {
                                         </div>
 
                                         <div className="flex flex-wrap gap-2 mb-4">
-                                            {/* Assuming category or other fields can be used as tags for now */}
                                             <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs font-medium">{job.category}</span>
                                             <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs font-medium">{job.type}</span>
                                         </div>

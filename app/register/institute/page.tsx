@@ -30,7 +30,7 @@ export default function InstituteRegistrationPage() {
 
     setLoading(true);
     try {
-      const response = await fetch("/api/institute/register", {
+      const response = await fetch("/api/register/institute", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

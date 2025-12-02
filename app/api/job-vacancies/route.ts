@@ -7,16 +7,28 @@ export async function GET(request: Request) {
     const limit = 8;
     const skip = (page - 1) * limit;
 
+    const category = searchParams.get('category');
+    const type = searchParams.get('type');
+
+    const where: any = {};
+    if (category) {
+        where.category = category;
+    }
+    if (type) {
+        where.type = type;
+    }
+
     try {
         const [data, total] = await Promise.all([
             prisma.jobVacancy.findMany({
+                where,
                 skip,
                 take: limit,
                 orderBy: {
                     createdAt: 'desc',
                 },
             }),
-            prisma.jobVacancy.count(),
+            prisma.jobVacancy.count({ where }),
         ]);
 
         const lastPage = Math.ceil(total / limit);
