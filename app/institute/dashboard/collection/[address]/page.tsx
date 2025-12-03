@@ -85,63 +85,127 @@ export default function CollectionDetailPage() {
                     </div>
                 </div>
 
-                {/* Details Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Contract Info */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                                <Hash className="h-5 w-5 text-gray-500" />
-                                Contract Information
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div>
-                                <label className="text-sm font-medium text-gray-500 block mb-1">Contract Address</label>
-                                <div className="flex items-center gap-2">
-                                    <code className="bg-gray-100 px-3 py-1.5 rounded text-sm font-mono text-gray-800 break-all">
-                                        {collection.address}
-                                    </code>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-8 w-8 text-gray-500 hover:text-gray-700"
-                                        onClick={() => copyToClipboard(collection.address)}
-                                    >
-                                        <Copy className="h-4 w-4" />
-                                    </Button>
-                                </div>
+                {/* Details Section - Merged Card */}
+                <Card className="mb-8">
+                    <CardHeader>
+                        <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                            <Hash className="h-5 w-5 text-gray-500" />
+                            Collection Details
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {/* Contract Info */}
+                        <div>
+                            <label className="text-sm font-medium text-gray-500 block mb-2">Contract Address</label>
+                            <div className="flex items-center gap-2">
+                                <code className="bg-gray-100 px-3 py-2 rounded-md text-sm font-mono text-gray-800 break-all border border-gray-200 w-full">
+                                    {collection.address}
+                                </code>
+                                <Button
+                                    variant="outline"
+                                    size="icon"
+                                    className="shrink-0"
+                                    onClick={() => copyToClipboard(collection.address)}
+                                >
+                                    <Copy className="h-4 w-4" />
+                                </Button>
                             </div>
-                        </CardContent>
-                    </Card>
+                        </div>
 
-                    {/* Metadata */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                                <Calendar className="h-5 w-5 text-gray-500" />
-                                Collection Metadata
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
+                        {/* Metadata */}
+                        <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label className="text-sm font-medium text-gray-500 block mb-1">Created At</label>
-                                <p className="text-gray-900">
+                                <p className="text-gray-900 font-medium">
                                     {new Date(collection.createdAt).toLocaleDateString('en-US', {
                                         year: 'numeric',
                                         month: 'long',
                                         day: 'numeric',
-                                        hour: '2-digit',
-                                        minute: '2-digit'
                                     })}
                                 </p>
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-500 block mb-1">Collection ID</label>
-                                <p className="text-gray-900 font-mono text-sm">{collection.id}</p>
+                                <p className="text-gray-900 font-mono text-sm truncate" title={collection.id}>{collection.id}</p>
                             </div>
-                        </CardContent>
-                    </Card>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Certificates List */}
+                <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-xl font-bold text-gray-900">Issued Certificates</h2>
+                        <span className="text-sm text-gray-500">{collection.certificates?.length || 0} items</span>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-4">
+                        {collection.certificates?.map((cert: any) => (
+                            <Card key={cert.id} className="overflow-hidden hover:shadow-md transition-all border-gray-200 group">
+                                <CardContent className="p-0">
+                                    <div className="flex flex-col sm:flex-row h-full">
+                                        {/* Image Thumbnail */}
+                                        <div className="w-full sm:w-48 h-48 sm:h-auto bg-gray-100 relative shrink-0 border-r border-gray-100">
+                                            <img
+                                                src={cert.tokenUri.startsWith('ipfs://')
+                                                    ? cert.tokenUri.replace('ipfs://', 'https://gateway.pinata.cloud/ipfs/')
+                                                    : cert.tokenUri}
+                                                alt={cert.name}
+                                                className="w-full h-full object-cover"
+                                                onError={(e) => {
+                                                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/150?text=No+Image';
+                                                }}
+                                            />
+                                        </div>
+
+                                        {/* Content */}
+                                        <div className="p-6 flex-1 flex flex-col justify-center">
+                                            <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-4">
+                                                <div>
+                                                    <h3 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{cert.name}</h3>
+                                                    <p className="text-sm text-gray-500 mt-1">Token ID: <span className="font-mono text-gray-700">#{cert.tokenId}</span></p>
+                                                </div>
+                                                <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-50 px-3 py-1 rounded-full border border-gray-100">
+                                                    <Calendar className="h-3 w-3" />
+                                                    {new Date(cert.createdAt).toLocaleDateString('en-US', {
+                                                        year: 'numeric',
+                                                        month: 'short',
+                                                        day: 'numeric'
+                                                    })}
+                                                </div>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-auto pt-4 border-t border-gray-50">
+                                                <div>
+                                                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Recipient Name</p>
+                                                    <p className="text-sm font-medium text-gray-900">{cert.student?.name || 'Unknown'}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Wallet Address</p>
+                                                    <code className="text-sm bg-gray-100 px-2 py-1 rounded text-gray-700 font-mono block w-fit">
+                                                        {cert.student?.wallet ? `${cert.student.wallet.substring(0, 6)}...${cert.student.wallet.substring(cert.student.wallet.length - 4)}` : 'Unknown'}
+                                                    </code>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        ))}
+
+                        {(!collection.certificates || collection.certificates.length === 0) && (
+                            <div className="text-center py-16 bg-white rounded-xl border-2 border-dashed border-gray-200">
+                                <div className="bg-gray-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <FileText className="h-8 w-8 text-gray-400" />
+                                </div>
+                                <h3 className="text-lg font-medium text-gray-900">No certificates issued yet</h3>
+                                <p className="text-gray-500 mt-1 max-w-sm mx-auto">Start minting certificates to see them listed here.</p>
+                                <Link href={`/institute/create/collection/${address}`} className="mt-6 inline-block">
+                                    <Button variant="outline">Mint Your First Certificate</Button>
+                                </Link>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </main>
         </div>

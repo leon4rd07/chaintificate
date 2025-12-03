@@ -7,18 +7,24 @@ import Header from "../../../../components/Header";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Upload, ArrowLeft, Loader2 } from "lucide-react";
-import { useGetCollectionDetail } from "../../../../../hooks/useCertificate";
+import { useGetCollectionDetail, useCreateCertificate } from "../../../../../hooks/useCertificate";
+import { usePinata } from "../../../../../hooks/usePinata";
 
 export default function MintCertificatePage() {
     const params = useParams();
     const address = params.address as string;
     const { collection, isLoading, error } = useGetCollectionDetail(address);
 
+    // Hooks must be called at the top level, before any early returns
+    const { uploadImageAndMetadata, isUploading, error: pinataError } = usePinata();
+    const { createCertificate, isWritePending, isConfirming, error: contractError } = useCreateCertificate();
+
     const [dragActive, setDragActive] = useState(false);
     const [mounted, setMounted] = useState(false);
 
     // Form State
     const [recipientName, setRecipientName] = useState("");
+    const [recipientWallet, setRecipientWallet] = useState("");
     const [issuanceDate, setIssuanceDate] = useState("");
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -62,6 +68,55 @@ export default function MintCertificatePage() {
         // Create preview URL
         const objectUrl = URL.createObjectURL(file);
         setPreviewUrl(objectUrl);
+    };
+
+    const handleMint = async () => {
+        if (!collection || !recipientName || !recipientWallet || !issuanceDate || !selectedFile) {
+            alert("Please fill in all fields");
+            return;
+        }
+
+        try {
+            // 1. Construct Metadata Base
+            const metadataBase = {
+                name: collection.name,
+                description: collection.description,
+                attributes: [
+                    {
+                        trait_type: "created_at",
+                        value: issuanceDate
+                    },
+                    {
+                        trait_type: "recipient",
+                        value: recipientName
+                    },
+                    {
+                        trait_type: "issuer",
+                        value: collection.institution?.name || "Unknown Institution"
+                    }
+                ]
+            };
+
+            // 2. Upload to Pinata (Image + Metadata)
+            const uploadResult = await uploadImageAndMetadata(selectedFile, metadataBase);
+
+            if (!uploadResult || !uploadResult.url) {
+                throw new Error("Failed to upload metadata to IPFS");
+            }
+
+            const tokenURI = uploadResult.url;
+            console.log("Metadata uploaded to IPFS:", tokenURI);
+
+            // 3. Mint Certificate on Blockchain
+            const tx = await createCertificate(address, recipientWallet, tokenURI, collection.name);
+            console.log("Transaction sent:", tx);
+
+            alert("Certificate minted successfully! Transaction Hash: " + tx);
+
+        } catch (err: any) {
+            console.error("Minting failed:", err);
+            alert("Minting failed: " + (err.message || "Unknown error"));
+        }
     };
 
     if (isLoading) {
@@ -164,6 +219,15 @@ export default function MintCertificatePage() {
                                 />
                             </div>
 
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-gray-500">Issuer Name</label>
+                                <Input
+                                    value={collection.institution?.name || "Loading..."}
+                                    disabled
+                                    className="bg-gray-50 border-gray-200 text-gray-600 h-12"
+                                />
+                            </div>
+
                             {/* Input Fields */}
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-gray-700">Nama Penerima</label>
@@ -172,6 +236,16 @@ export default function MintCertificatePage() {
                                     className="bg-white border-gray-200 focus:border-blue-500 h-12"
                                     value={recipientName}
                                     onChange={(e) => setRecipientName(e.target.value)}
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-gray-700">Wallet Address Penerima</label>
+                                <Input
+                                    placeholder="e.g. 0x123..."
+                                    className="bg-white border-gray-200 focus:border-blue-500 h-12"
+                                    value={recipientWallet}
+                                    onChange={(e) => setRecipientWallet(e.target.value)}
                                 />
                             </div>
 
@@ -186,7 +260,10 @@ export default function MintCertificatePage() {
                             </div>
 
                             <div className="pt-8 flex justify-end">
-                                <Button className="bg-[#007BFF] hover:bg-[#0056b3] text-white font-bold px-12 py-6 text-lg shadow-md transition-all rounded-lg w-full sm:w-auto">
+                                <Button
+                                    onClick={handleMint}
+                                    className="bg-[#007BFF] hover:bg-[#0056b3] text-white font-bold px-12 py-6 text-lg shadow-md transition-all rounded-lg w-full sm:w-auto"
+                                >
                                     Minting (Prototype)
                                 </Button>
                             </div>

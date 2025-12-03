@@ -1,6 +1,7 @@
 import { useWriteContract, useWaitForTransactionReceipt, useAccount } from 'wagmi';
-import { CHAINTIFICATE_ABI, CHAINTIFICATE_ADDRESS } from '../types/contracts';
+import { CHAINTIFICATE_ABI, CHAINTIFICATE_ADDRESS, CERTIFICATE_ABI } from '../types/contracts';
 import { useState, useEffect } from 'react';
+import { toast } from "sonner";
 import { decodeEventLog } from 'viem';
 
 export const useCreateCollection = () => {
@@ -217,3 +218,138 @@ export const useGetCollectionDetail = (collectionAddress: string) => {
         error
     };
 };
+
+export const useCreateCertificate = () => {
+    const [pendingData, setPendingData] = useState<{
+        collectionAddress: string;
+        recipient: string;
+        tokenURI: string;
+        certificateName: string;
+    } | null>(null);
+    const [isApiPending, setIsApiPending] = useState(false);
+    const [apiError, setApiError] = useState<string | null>(null);
+
+    const {
+        writeContractAsync,
+        data: hash,
+        isPending: isWritePending,
+        error: writeError
+    } = useWriteContract();
+
+    const {
+        data: receipt,
+        isLoading: isConfirming,
+        isSuccess: isConfirmed,
+        error: receiptError
+    } = useWaitForTransactionReceipt({
+        hash,
+    });
+
+    const createCertificate = async (collectionAddress: string, recipient: string, tokenURI: string, certificateName: string) => {
+        if (!collectionAddress || !recipient || !tokenURI || !certificateName) {
+            throw new Error("Missing required arguments: collectionAddress, recipient, tokenURI, or certificateName");
+        }
+
+        setPendingData({ collectionAddress, recipient, tokenURI, certificateName });
+        setApiError(null);
+
+        const mintPromise = async () => {
+            const tx = await writeContractAsync({
+                address: collectionAddress as `0x${string}`,
+                abi: CERTIFICATE_ABI,
+                functionName: 'safeMint',
+                args: [recipient as `0x${string}`, tokenURI],
+            });
+            return tx;
+        };
+
+        try {
+            const promise = mintPromise();
+            toast.promise(promise, {
+                loading: 'Minting certificate... Please confirm in your wallet.',
+                success: 'Transaction submitted! Waiting for confirmation...',
+                error: (err: any) => `Minting failed: ${err.message || "Unknown error"}`
+            });
+            const tx = await promise;
+            return tx;
+        } catch (err) {
+            console.error("Error creating certificate:", err);
+            setPendingData(null);
+            throw err;
+        }
+    };
+
+    useEffect(() => {
+        const syncToDatabase = async () => {
+            if (isConfirmed && receipt && pendingData) {
+                setIsApiPending(true);
+                try {
+                    let tokenId: string | undefined;
+
+                    for (const log of receipt.logs) {
+                        try {
+                            const decodedLog = decodeEventLog({
+                                abi: CERTIFICATE_ABI,
+                                data: log.data,
+                                topics: log.topics,
+                            });
+
+                            if (decodedLog.eventName === 'Transfer' && decodedLog.args.to.toLowerCase() === pendingData.recipient.toLowerCase()) {
+                                tokenId = decodedLog.args.tokenId.toString();
+                                break;
+                            }
+                        } catch (e) {
+                            continue;
+                        }
+                    }
+
+                    if (tokenId) {
+                        const response = await fetch(`/api/certificate/collection/${pendingData.collectionAddress}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                studentWallet: pendingData.recipient,
+                                certificateName: pendingData.certificateName,
+                                tokenId: tokenId,
+                                tokenUri: pendingData.tokenURI,
+                            }),
+                        });
+
+                        if (!response.ok) {
+                            const errorData = await response.json();
+                            throw new Error(errorData.error || 'Failed to sync with database');
+                        }
+                        toast.success("Certificate saved to database!");
+                    } else {
+                        console.error("Transfer event not found in transaction logs");
+                        setApiError("Failed to retrieve token ID from transaction");
+                        toast.error("Failed to retrieve token ID from transaction");
+                    }
+                } catch (error: any) {
+                    console.error("Error syncing to database:", error);
+                    setApiError(error.message || "Error syncing to database");
+                    toast.error(`Error syncing to database: ${error.message}`);
+                } finally {
+                    setIsApiPending(false);
+                    setPendingData(null);
+                }
+            }
+        };
+
+        syncToDatabase();
+    }, [isConfirmed, receipt, pendingData]);
+
+    return {
+        createCertificate,
+        hash,
+        isWritePending,
+        isConfirming,
+        isConfirmed,
+        isApiPending,
+        error: writeError || receiptError || (apiError ? new Error(apiError) : null)
+    };
+};
+
+

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 
 export const usePinata = () => {
     const [isUploading, setIsUploading] = useState(false);
@@ -61,7 +62,7 @@ export const usePinata = () => {
         setError(null);
         setUploadedData(null);
 
-        try {
+        const uploadPromise = async () => {
             // 1. Upload Image
             const imageUpload = await uploadFile(file);
 
@@ -74,6 +75,17 @@ export const usePinata = () => {
 
             // 3. Upload JSON
             return await uploadJSON(finalMetadata);
+        };
+
+        try {
+            const promise = uploadPromise();
+            toast.promise(promise, {
+                loading: 'Uploading image and metadata to IPFS...',
+                success: 'Metadata uploaded successfully!',
+                error: (err) => `Upload failed: ${err.message || "Unknown error"}`
+            });
+            const result = await promise;
+            return result;
         } catch (err: any) {
             console.error("Error in upload flow:", err);
             setError(err.message || "Failed to upload image and metadata");
