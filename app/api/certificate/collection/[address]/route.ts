@@ -85,7 +85,6 @@ export async function POST(
             );
         }
 
-        // Find or create student
         let student = await prisma.student.findUnique({
             where: {
                 wallet: studentWallet.toLowerCase(),
@@ -95,7 +94,7 @@ export async function POST(
         if (!student) {
             student = await prisma.student.create({
                 data: {
-                    wallet: studentWallet,
+                    wallet: studentWallet.toLowerCase(),
                     name: studentName || studentWallet,
                 },
             });

@@ -119,7 +119,7 @@ export const useCreateCollection = () => {
     };
 };
 
-export const useGetAllCertificateCollection = (page = 1, limit = 10) => {
+export const useGetAllCertificateCollection = (page = 1, limit = 10, type = 'All') => {
     const { address: userAddress } = useAccount();
     const [collections, setCollections] = useState<any[]>([]);
     const [pagination, setPagination] = useState<{ total: number; page: number; limit: number; totalPages: number } | null>(null);
@@ -137,7 +137,7 @@ export const useGetAllCertificateCollection = (page = 1, limit = 10) => {
             setError(null);
 
             try {
-                const response = await fetch(`/api/certificate/collection?wallet=${userAddress}&page=${page}&limit=${limit}`);
+                const response = await fetch(`/api/certificate/collection?wallet=${userAddress}&page=${page}&limit=${limit}&type=${type}`);
 
                 if (!response.ok) {
                     const errorData = await response.json();
@@ -164,7 +164,7 @@ export const useGetAllCertificateCollection = (page = 1, limit = 10) => {
         };
 
         fetchCollections();
-    }, [userAddress, page, limit]);
+    }, [userAddress, page, limit, type]);
 
     return {
         collections,

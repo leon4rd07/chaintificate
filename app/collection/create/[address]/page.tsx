@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Header from "../../../components/Header";
 import { Button } from "@/app/components/ui/button";
@@ -11,6 +11,7 @@ import { useGetCollectionDetail, useCreateCertificate } from "../../../../hooks/
 import { usePinata } from "../../../../hooks/usePinata";
 
 export default function MintCertificatePage() {
+    const router = useRouter();
     const params = useParams();
     const address = params.address as string;
     const { collection, isLoading, error } = useGetCollectionDetail(address);
@@ -111,7 +112,8 @@ export default function MintCertificatePage() {
             const tx = await createCertificate(address, recipientWallet, tokenURI, collection.name, recipientName);
             console.log("Transaction sent:", tx);
 
-            alert("Certificate minted successfully! Transaction Hash: " + tx);
+            // alert("Certificate minted successfully! Transaction Hash: " + tx);
+            router.push(`/collection/${address}`);
 
         } catch (err: any) {
             console.error("Minting failed:", err);

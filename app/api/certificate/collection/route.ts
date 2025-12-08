@@ -15,7 +15,7 @@ export async function POST(request: Request) {
 
         // Find the institution by wallet address
         const institution = await prisma.institution.findUnique({
-            where: { wallet },
+            where: { wallet: wallet.toLowerCase() },
         });
 
         if (!institution) {
@@ -49,9 +49,10 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
     try {
         const { searchParams } = new URL(request.url);
-        const wallet = searchParams.get("wallet");
+        const wallet = searchParams.get("wallet")?.toLowerCase();
         const page = parseInt(searchParams.get("page") || "1");
         const limit = parseInt(searchParams.get("limit") || "10");
+        const type = searchParams.get("type");
 
         if (!wallet) {
             return NextResponse.json(
@@ -61,7 +62,7 @@ export async function GET(request: Request) {
         }
 
         const institution = await prisma.institution.findUnique({
-            where: { wallet },
+            where: { wallet: wallet.toLowerCase() },
         });
 
         if (!institution) {
@@ -77,6 +78,7 @@ export async function GET(request: Request) {
             prisma.certificateCollection.findMany({
                 where: {
                     institutionId: institution.id,
+                    ...(type && type !== 'All' ? { type: type as any } : {}),
                 },
                 select: {
                     name: true,
@@ -98,6 +100,7 @@ export async function GET(request: Request) {
             prisma.certificateCollection.count({
                 where: {
                     institutionId: institution.id,
+                    ...(type && type !== 'All' ? { type: type as any } : {}),
                 },
             }),
         ]);

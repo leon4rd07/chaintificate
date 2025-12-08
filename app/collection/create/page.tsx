@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Header from "../../components/Header";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
@@ -23,6 +24,7 @@ export default function CreateCollectionPage() {
         isConfirmed,
         error: hookError
     } = useCreateCollection();
+    const router = useRouter();
 
     const [mounted, setMounted] = useState(false);
 
@@ -37,6 +39,7 @@ export default function CreateCollectionPage() {
             setCollectionSymbol("");
             setCollectionDescription("");
             setCollectionType("Certificate");
+            router.push("/dashboard/institute");
         }
     }, [isConfirmed, isApiPending]);
 

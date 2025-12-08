@@ -14,6 +14,7 @@ export interface Certificate {
         address: string;
         name: string;
         description: string;
+        type: string;
         institutionId: string;
         institution: {
             name: string;

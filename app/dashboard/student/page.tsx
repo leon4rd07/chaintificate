@@ -102,7 +102,7 @@ export default function StudentDashboardPage() {
   const { address } = useAccount();
   const { data: certificates, isLoading } = useGetStudentCertificates(address);
 
-  const [activeTab, setActiveTab] = useState<"certificates" | "degrees">("certificates");
+  const [activeTab, setActiveTab] = useState<"Certificate" | "Degree">("Certificate");
 
   const certificatesData = certificates?.map((cert) => ({
     id: cert.id,
@@ -111,10 +111,10 @@ export default function StudentDashboardPage() {
     date: new Date(cert.createdAt).toLocaleDateString(),
     imageUrl: cert.tokenUri,
     isFeatured: false, // You might want to add logic for this later
-    category: "General", // Or derive from collection description/name
+    category: cert.collection.type || "General",
   })) || [];
 
-  const currentData = activeTab === "certificates" ? certificatesData : degreesData;
+  const currentData = certificatesData.filter(cert => cert.category === activeTab);
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] font-sans pb-20">
@@ -196,8 +196,8 @@ export default function StudentDashboardPage() {
                 <h2 className="text-xl font-bold text-gray-800">My Credentials</h2>
                 <div className="flex space-x-2 bg-gray-100 p-1 rounded-lg">
                   <button
-                    onClick={() => setActiveTab("certificates")}
-                    className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === "certificates"
+                    onClick={() => setActiveTab("Certificate")}
+                    className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === "Certificate"
                       ? "bg-white text-blue-600 shadow-sm"
                       : "text-gray-500 hover:text-gray-700"
                       }`}
@@ -205,8 +205,8 @@ export default function StudentDashboardPage() {
                     Certificates
                   </button>
                   <button
-                    onClick={() => setActiveTab("degrees")}
-                    className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === "degrees"
+                    onClick={() => setActiveTab("Degree")}
+                    className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === "Degree"
                       ? "bg-white text-blue-600 shadow-sm"
                       : "text-gray-500 hover:text-gray-700"
                       }`}
