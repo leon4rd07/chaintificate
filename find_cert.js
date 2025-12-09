@@ -1,0 +1,1 @@
+﻿const { PrismaClient } = require('@prisma/client'); const prisma = new PrismaClient(); async function main() { const cert = await prisma.certificate.findFirst(); console.log(cert ? cert.tokenUri : 'NONE'); } main().catch(e => console.error(e)).finally(() => prisma.());

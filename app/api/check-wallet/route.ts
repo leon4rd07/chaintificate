@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
-    const wallet = searchParams.get("wallet");
+    const wallet = searchParams.get("wallet")?.toLowerCase();
 
     if (!wallet) {
         return NextResponse.json({ error: "Wallet is required" }, { status: 400 });

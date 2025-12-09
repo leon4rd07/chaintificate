@@ -1,16 +1,17 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import Header from "../../../../components/Header";
+import Header from "../../../components/Header";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Upload, ArrowLeft, Loader2 } from "lucide-react";
-import { useGetCollectionDetail, useCreateCertificate } from "../../../../../hooks/useCertificate";
-import { usePinata } from "../../../../../hooks/usePinata";
+import { useGetCollectionDetail, useCreateCertificate } from "../../../../hooks/useCertificate";
+import { usePinata } from "../../../../hooks/usePinata";
 
 export default function MintCertificatePage() {
+    const router = useRouter();
     const params = useParams();
     const address = params.address as string;
     const { collection, isLoading, error } = useGetCollectionDetail(address);
@@ -108,10 +109,11 @@ export default function MintCertificatePage() {
             console.log("Metadata uploaded to IPFS:", tokenURI);
 
             // 3. Mint Certificate on Blockchain
-            const tx = await createCertificate(address, recipientWallet, tokenURI, collection.name);
+            const tx = await createCertificate(address, recipientWallet, tokenURI, collection.name, recipientName);
             console.log("Transaction sent:", tx);
 
-            alert("Certificate minted successfully! Transaction Hash: " + tx);
+            // alert("Certificate minted successfully! Transaction Hash: " + tx);
+            router.push(`/collection/${address}`);
 
         } catch (err: any) {
             console.error("Minting failed:", err);
@@ -151,7 +153,7 @@ export default function MintCertificatePage() {
 
                 {/* Breadcrumb / Back Navigation */}
                 <div className="mb-8">
-                    <Link href={`/institute/dashboard/collection/${address}`} className="text-gray-500 hover:text-gray-900 flex items-center gap-2 transition-colors w-fit">
+                    <Link href={`/dashboard/institute/collection/${address}`} className="text-gray-500 hover:text-gray-900 flex items-center gap-2 transition-colors w-fit">
                         <ArrowLeft className="h-4 w-4" /> Back to Collection
                     </Link>
                 </div>

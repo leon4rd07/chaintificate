@@ -13,10 +13,23 @@ export async function POST(request: Request) {
             );
         }
 
+        const normalizedWallet = wallet.toLowerCase();
+
+        const existingStudent = await prisma.student.findUnique({
+            where: { wallet: normalizedWallet },
+        });
+
+        if (existingStudent) {
+            return NextResponse.json(
+                { error: "Wallet already registered as student" },
+                { status: 400 }
+            );
+        }
+
         const student = await prisma.student.create({
             data: {
                 name,
-                wallet,
+                wallet: normalizedWallet,
             },
         });
 

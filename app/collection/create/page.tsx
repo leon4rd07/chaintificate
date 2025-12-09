@@ -2,17 +2,19 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import Header from "../../../components/Header";
+import { useRouter } from "next/navigation";
+import Header from "../../components/Header";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { ArrowLeft, Loader2 } from "lucide-react";
-import { useCreateCollection } from "../../../../hooks/useCertificate";
+import { useCreateCollection } from "../../../hooks/useCertificate";
 
 export default function CreateCollectionPage() {
     // Collection Form State
     const [collectionName, setCollectionName] = useState("");
     const [collectionSymbol, setCollectionSymbol] = useState("");
     const [collectionDescription, setCollectionDescription] = useState("");
+    const [collectionType, setCollectionType] = useState<"Certificate" | "Degree">("Certificate");
 
     const {
         createCertificateCollection,
@@ -22,6 +24,7 @@ export default function CreateCollectionPage() {
         isConfirmed,
         error: hookError
     } = useCreateCollection();
+    const router = useRouter();
 
     const [mounted, setMounted] = useState(false);
 
@@ -35,6 +38,8 @@ export default function CreateCollectionPage() {
             setCollectionName("");
             setCollectionSymbol("");
             setCollectionDescription("");
+            setCollectionType("Certificate");
+            router.push("/dashboard/institute");
         }
     }, [isConfirmed, isApiPending]);
 
@@ -43,12 +48,12 @@ export default function CreateCollectionPage() {
     }
 
     const handleCreateCollection = async () => {
-        if (!collectionName || !collectionSymbol || !collectionDescription) {
+        if (!collectionName || !collectionSymbol || !collectionDescription || !collectionType) {
             alert("Please fill in all fields");
             return;
         }
         try {
-            await createCertificateCollection(collectionName, collectionSymbol, collectionDescription);
+            await createCertificateCollection(collectionName, collectionSymbol, collectionDescription, collectionType);
         } catch (e) {
             console.error("Failed to create collection", e);
         }
@@ -64,7 +69,7 @@ export default function CreateCollectionPage() {
 
                 {/* Breadcrumb / Back Navigation */}
                 <div className="mb-8">
-                    <Link href="/institute/dashboard" className="text-gray-500 hover:text-gray-900 flex items-center gap-2 transition-colors w-fit">
+                    <Link href="/dashboard/institute" className="text-gray-500 hover:text-gray-900 flex items-center gap-2 transition-colors w-fit">
                         <ArrowLeft className="h-4 w-4" /> Back to Dashboard
                     </Link>
                 </div>
@@ -129,6 +134,39 @@ export default function CreateCollectionPage() {
                                     onChange={(e) => setCollectionDescription(e.target.value)}
                                     disabled={isLoading}
                                 />
+                            </div>
+                            <div className="space-y-4">
+                                <label className="text-sm font-medium text-gray-700">Type</label>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div
+                                        onClick={() => setCollectionType("Certificate")}
+                                        className={`cursor-pointer rounded-lg border p-4 flex items-center justify-center gap-2 transition-all ${collectionType === "Certificate"
+                                            ? "border-blue-500 bg-blue-50 text-blue-700 ring-2 ring-blue-500 ring-offset-2"
+                                            : "border-gray-200 hover:border-gray-300 bg-white text-gray-700"
+                                            }`}
+                                    >
+                                        <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${collectionType === "Certificate" ? "border-blue-500" : "border-gray-400"
+                                            }`}>
+                                            {collectionType === "Certificate" && <div className="w-2 h-2 rounded-full bg-blue-500" />}
+                                        </div>
+                                        <span className="font-medium">Certificate</span>
+                                    </div>
+
+                                    <div
+                                        onClick={() => setCollectionType("Degree")}
+                                        className={`cursor-pointer rounded-lg border p-4 flex items-center justify-center gap-2 transition-all ${collectionType === "Degree"
+                                            ? "border-blue-500 bg-blue-50 text-blue-700 ring-2 ring-blue-500 ring-offset-2"
+                                            : "border-gray-200 hover:border-gray-300 bg-white text-gray-700"
+                                            }`}
+                                    >
+                                        <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${collectionType === "Degree" ? "border-blue-500" : "border-gray-400"
+                                            }`}>
+                                            {collectionType === "Degree" && <div className="w-2 h-2 rounded-full bg-blue-500" />}
+                                        </div>
+                                        <span className="font-medium">Degree</span>
+                                    </div>
+                                </div>
+                                <p className="text-xs text-gray-400">Select the type of credentials this collection will issue.</p>
                             </div>
                         </div>
 

@@ -13,10 +13,23 @@ export async function POST(request: Request) {
             );
         }
 
+        const normalizedWallet = wallet.toLowerCase();
+
+        const existingInstitution = await prisma.institution.findUnique({
+            where: { wallet: normalizedWallet },
+        });
+
+        if (existingInstitution) {
+            return NextResponse.json(
+                { error: "Wallet already registered as institution" },
+                { status: 400 }
+            );
+        }
+
         const institution = await prisma.institution.create({
             data: {
                 name,
-                wallet,
+                wallet: normalizedWallet,
                 description,
                 contact,
             },

@@ -42,9 +42,9 @@ export default function DashboardPage() {
 
           if (data.exists) {
             if (data.role === 'student') {
-              router.push('/student/dashboard');
+              router.push('/dashboard/student');
             } else if (data.role === 'institute') {
-              router.push('/institute/dashboard');
+              router.push('/dashboard/institute');
             }
           }
         } catch (error) {

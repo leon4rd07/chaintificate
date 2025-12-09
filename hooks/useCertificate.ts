@@ -1,4 +1,5 @@
-import { useWriteContract, useWaitForTransactionReceipt, useAccount } from 'wagmi';
+﻿import { useWriteContract, useWaitForTransactionReceipt, useAccount } from 'wagmi';
+import { useRouter } from 'next/navigation';
 import { CHAINTIFICATE_ABI, CHAINTIFICATE_ADDRESS, CERTIFICATE_ABI } from '../types/contracts';
 import { useState, useEffect } from 'react';
 import { toast } from "sonner";
@@ -6,7 +7,7 @@ import { decodeEventLog } from 'viem';
 
 export const useCreateCollection = () => {
     const { address: userAddress } = useAccount();
-    const [pendingData, setPendingData] = useState<{ name: string; description: string } | null>(null);
+    const [pendingData, setPendingData] = useState<{ name: string; description: string; type: string } | null>(null);
     const [isApiPending, setIsApiPending] = useState(false);
     const [apiError, setApiError] = useState<string | null>(null);
 
@@ -26,11 +27,11 @@ export const useCreateCollection = () => {
         hash,
     });
 
-    const createCertificateCollection = async (name: string, symbol: string, description: string) => {
+    const createCertificateCollection = async (name: string, symbol: string, description: string, type: string) => {
         if (!CHAINTIFICATE_ADDRESS) {
             throw new Error("Chaintificate contract address is not defined");
         }
-        setPendingData({ name, description });
+        setPendingData({ name, description, type });
         setApiError(null);
         try {
             const tx = await writeContractAsync({
@@ -82,6 +83,7 @@ export const useCreateCollection = () => {
                                 address: newCollectionAddress,
                                 name: pendingData.name,
                                 description: pendingData.description,
+                                type: pendingData.type,
                                 wallet: userAddress,
                             }),
                         });
@@ -118,7 +120,7 @@ export const useCreateCollection = () => {
     };
 };
 
-export const useGetAllCertificateCollection = (page = 1, limit = 10) => {
+export const useGetAllCertificateCollection = (page = 1, limit = 10, type = 'All') => {
     const { address: userAddress } = useAccount();
     const [collections, setCollections] = useState<any[]>([]);
     const [pagination, setPagination] = useState<{ total: number; page: number; limit: number; totalPages: number } | null>(null);
@@ -136,7 +138,7 @@ export const useGetAllCertificateCollection = (page = 1, limit = 10) => {
             setError(null);
 
             try {
-                const response = await fetch(`/api/certificate/collection?wallet=${userAddress}&page=${page}&limit=${limit}`);
+                const response = await fetch(`/api/certificate/collection?wallet=${userAddress}&page=${page}&limit=${limit}&type=${type}`);
 
                 if (!response.ok) {
                     const errorData = await response.json();
@@ -163,7 +165,7 @@ export const useGetAllCertificateCollection = (page = 1, limit = 10) => {
         };
 
         fetchCollections();
-    }, [userAddress, page, limit]);
+    }, [userAddress, page, limit, type]);
 
     return {
         collections,
@@ -225,6 +227,7 @@ export const useCreateCertificate = () => {
         recipient: string;
         tokenURI: string;
         certificateName: string;
+        studentName: string;
     } | null>(null);
     const [isApiPending, setIsApiPending] = useState(false);
     const [apiError, setApiError] = useState<string | null>(null);
@@ -245,12 +248,12 @@ export const useCreateCertificate = () => {
         hash,
     });
 
-    const createCertificate = async (collectionAddress: string, recipient: string, tokenURI: string, certificateName: string) => {
+    const createCertificate = async (collectionAddress: string, recipient: string, tokenURI: string, certificateName: string, studentName: string) => {
         if (!collectionAddress || !recipient || !tokenURI || !certificateName) {
             throw new Error("Missing required arguments: collectionAddress, recipient, tokenURI, or certificateName");
         }
 
-        setPendingData({ collectionAddress, recipient, tokenURI, certificateName });
+        setPendingData({ collectionAddress, recipient, tokenURI, certificateName, studentName });
         setApiError(null);
 
         const mintPromise = async () => {
@@ -314,6 +317,7 @@ export const useCreateCertificate = () => {
                                 certificateName: pendingData.certificateName,
                                 tokenId: tokenId,
                                 tokenUri: pendingData.tokenURI,
+                                studentName: pendingData.studentName,
                             }),
                         });
 
@@ -352,4 +356,52 @@ export const useCreateCertificate = () => {
     };
 };
 
+export const useVerify = () => {
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const router = useRouter();
 
+    const verifyCertificate = async (tokenUri: string) => {
+        setIsLoading(true);
+        setError(null);
+
+        try {
+            const response = await fetch('/api/certificate/verify', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ tokenUri }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Verification failed');
+            }
+
+            const data = await response.json();
+
+            if (data.id) {
+                toast.success("Certificate found! Redirecting...");
+                router.push(`/collection/certificate/${data.id}`);
+            } else {
+                throw new Error("Invalid response from server");
+            }
+
+            return data;
+        } catch (err: any) {
+            console.error("Error verifying certificate:", err);
+            setError(err.message || "Verification failed");
+            toast.error(err.message || "Certificate not found");
+            throw err;
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return {
+        verifyCertificate,
+        isLoading,
+        error
+    };
+};

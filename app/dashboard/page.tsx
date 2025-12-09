@@ -27,9 +27,9 @@ export default function DashboardRedirect() {
 
                     if (data.exists) {
                         if (data.role === 'student') {
-                            router.push('/student/dashboard');
+                            router.push('/dashboard/student');
                         } else if (data.role === 'institute') {
-                            router.push('/institute/dashboard');
+                            router.push('/dashboard/institute');
                         }
                     } else {
                         // Not registered, go to role selection

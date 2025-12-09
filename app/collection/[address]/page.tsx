@@ -2,10 +2,10 @@
 
 import React from "react";
 import { useParams } from "next/navigation";
-import Header from "../../../../components/Header";
+import Header from "../../components/Header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
-import { useGetCollectionDetail } from "../../../../../hooks/useCertificate";
+import { useGetCollectionDetail } from "../../../hooks/useCertificate";
 import { Calendar, FileText, Hash, ArrowLeft, Copy, Plus } from "lucide-react";
 import Link from "next/link";
 
@@ -39,7 +39,7 @@ export default function CollectionDetailPage() {
                 <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
                     <div className="flex flex-col items-center justify-center h-64 gap-4">
                         <p className="text-red-500">Error: {error || "Collection not found"}</p>
-                        <Link href="/institute/dashboard">
+                        <Link href="/dashboard/institute">
                             <Button variant="outline">Back to Dashboard</Button>
                         </Link>
                     </div>
@@ -55,7 +55,7 @@ export default function CollectionDetailPage() {
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
                 {/* Back Button */}
                 <div className="mb-6">
-                    <Link href="/institute/dashboard" className="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors">
+                    <Link href="/dashboard/institute" className="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors">
                         <ArrowLeft className="h-4 w-4 mr-2" />
                         Back to Dashboard
                     </Link>
@@ -77,7 +77,7 @@ export default function CollectionDetailPage() {
                     </div>
 
                     <div className="mt-6 flex justify-end">
-                        <Link href={`/institute/create/collection/${address}`}>
+                        <Link href={`/collection/create/${address}`}>
                             <Button className="bg-[#0092FF] hover:bg-[#007ACF] text-white font-semibold px-6 py-2 rounded-lg shadow-md flex items-center gap-2">
                                 <Plus className="h-5 w-5" /> Mint New Certificate
                             </Button>

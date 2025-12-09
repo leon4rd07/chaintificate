@@ -32,9 +32,10 @@ export default function StudentRegisterPage() {
       });
 
       if (response.ok) {
-        router.push("/student/dashboard");
+        router.push("/dashboard/student");
       } else {
-        console.error("Registration failed");
+        const data = await response.json();
+        alert(data.error || "Registration failed");
       }
     } catch (error) {
       console.error("Error registering:", error);

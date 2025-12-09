@@ -42,7 +42,7 @@ export default function InstituteRegistrationPage() {
       });
 
       if (response.ok) {
-        router.push("/institute/dashboard");
+        router.push("/dashboard/institute");
       } else {
         console.error("Registration failed");
       }

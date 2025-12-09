@@ -37,6 +37,7 @@ model Institution {
 
 model CertificateCollection {
   id            String   @id @default(cuid())
+  type          CollectionType
   address       String   @unique
   name          String
   description   String
@@ -87,4 +88,9 @@ enum Category {
 enum Type {
   FullTime
   PartTime
+}
+
+enum CollectionType {
+  Certificate
+  Degree
 }
