@@ -1,8 +1,22 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Search, Link as LinkIcon, ArrowUpRight } from "lucide-react";
+import { useVerify } from "@/hooks/useCertificate";
 
 const HeroSection: React.FC = () => {
+  const [tokenUri, setTokenUri] = useState("");
+  const { verifyCertificate, isLoading } = useVerify();
+
+  const handleVerify = async () => {
+    if (!tokenUri) return;
+    try {
+      await verifyCertificate(tokenUri);
+    } catch (error) {
+      // Error handling is already done in the hook via toast
+      console.error("Verification error:", error);
+    }
+  };
+
   return (
     <section className="relative h-[calc(100vh-80px)] flex flex-col justify-end pb-12 overflow-hidden">
       {/* Background Illustration */}
@@ -29,7 +43,7 @@ const HeroSection: React.FC = () => {
           </p>
         </div>
 
-        {/* Search Bar (Styled like the reference CTA) */}
+        {/* Search Bar */}
         <div className="w-full bg-white rounded-full p-2 md:p-3 flex items-center shadow-2xl transform transition-all hover:scale-[1.005]">
           <div className="pl-6 pr-4 hidden sm:block">
             <LinkIcon className="w-6 h-6 text-gray-400" />
@@ -38,11 +52,24 @@ const HeroSection: React.FC = () => {
             type="text"
             placeholder="Paste Blockchain Certificate link here..."
             className="flex-grow bg-transparent text-gray-800 placeholder-gray-400 text-lg md:text-xl font-bold focus:outline-none px-4"
+            value={tokenUri}
+            onChange={(e) => setTokenUri(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleVerify()}
             suppressHydrationWarning
           />
-          <button className="flex items-center gap-2 bg-[#0092FF] text-white rounded-full px-8 py-4 font-bold text-lg hover:bg-[#007ACF] transition-colors shadow-sm">
-            <span>VERIFY</span>
-            <ArrowUpRight className="w-5 h-5" />
+          <button
+            onClick={handleVerify}
+            disabled={isLoading}
+            className={`flex items-center gap-2 bg-[#0092FF] text-white rounded-full px-8 py-4 font-bold text-lg hover:bg-[#007ACF] transition-colors shadow-sm ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
+          >
+            {isLoading ? (
+              <span>VERIFYING...</span>
+            ) : (
+              <>
+                <span>VERIFY</span>
+                <ArrowUpRight className="w-5 h-5" />
+              </>
+            )}
           </button>
         </div>
 

@@ -13,6 +13,7 @@ export async function GET(
                 id: id,
             },
             include: {
+                student: true,
                 collection: {
                     include: {
                         institution: true,

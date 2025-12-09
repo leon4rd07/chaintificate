@@ -1,4 +1,5 @@
-import { useWriteContract, useWaitForTransactionReceipt, useAccount } from 'wagmi';
+﻿import { useWriteContract, useWaitForTransactionReceipt, useAccount } from 'wagmi';
+import { useRouter } from 'next/navigation';
 import { CHAINTIFICATE_ABI, CHAINTIFICATE_ADDRESS, CERTIFICATE_ABI } from '../types/contracts';
 import { useState, useEffect } from 'react';
 import { toast } from "sonner";
@@ -355,6 +356,52 @@ export const useCreateCertificate = () => {
     };
 };
 
+export const useVerify = () => {
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const router = useRouter();
 
+    const verifyCertificate = async (tokenUri: string) => {
+        setIsLoading(true);
+        setError(null);
 
+        try {
+            const response = await fetch('/api/certificate/verify', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ tokenUri }),
+            });
 
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Verification failed');
+            }
+
+            const data = await response.json();
+
+            if (data.id) {
+                toast.success("Certificate found! Redirecting...");
+                router.push(`/collection/certificate/${data.id}`);
+            } else {
+                throw new Error("Invalid response from server");
+            }
+
+            return data;
+        } catch (err: any) {
+            console.error("Error verifying certificate:", err);
+            setError(err.message || "Verification failed");
+            toast.error(err.message || "Certificate not found");
+            throw err;
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return {
+        verifyCertificate,
+        isLoading,
+        error
+    };
+};
