@@ -23,13 +23,25 @@ export async function GET(
             },
         });
 
-        // Handle BigInt serialization
-        const serializedCertificates = certificates.map((cert) => ({
-            ...cert,
-            tokenId: cert.tokenId.toString(),
+        const formattedData = certificates.map((cert) => ({
+            id: cert.id,
+            name: cert.name,
+            tokenUri: cert.tokenUri,
+            mintingDate: cert.createdAt,
+            institution: cert.collection.institution.name,
+            type: cert.collection.type, // Helper for grouping
         }));
 
-        return NextResponse.json(serializedCertificates);
+        const response = {
+            certificates: formattedData
+                .filter((c) => c.type === "Certificate")
+                .map(({ type, ...rest }) => rest),
+            degrees: formattedData
+                .filter((c) => c.type === "Degree")
+                .map(({ type, ...rest }) => rest),
+        };
+
+        return NextResponse.json(response);
     } catch (error) {
         console.error("Error fetching certificates:", error);
         return NextResponse.json(

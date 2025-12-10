@@ -18,7 +18,7 @@ export default function MintCertificatePage() {
 
     // Hooks must be called at the top level, before any early returns
     const { uploadImageAndMetadata, isUploading, error: pinataError } = usePinata();
-    const { createCertificate, isWritePending, isConfirming, error: contractError } = useCreateCertificate();
+    const { createCertificate, isWritePending, isConfirming, isApiPending, isSynced, error: contractError } = useCreateCertificate();
 
     const [dragActive, setDragActive] = useState(false);
     const [mounted, setMounted] = useState(false);
@@ -33,6 +33,16 @@ export default function MintCertificatePage() {
     useEffect(() => {
         setMounted(true);
     }, []);
+
+    // New Effect: Redirect only after DB sync is complete
+    useEffect(() => {
+        if (isSynced) {
+            const timer = setTimeout(() => {
+                router.push(`/collection/${address}`);
+            }, 1000); // Small delay to let user see success message
+            return () => clearTimeout(timer);
+        }
+    }, [isSynced, router, address]);
 
     if (!mounted) {
         return null;
@@ -112,13 +122,21 @@ export default function MintCertificatePage() {
             const tx = await createCertificate(address, recipientWallet, tokenURI, collection.name, recipientName);
             console.log("Transaction sent:", tx);
 
-            // alert("Certificate minted successfully! Transaction Hash: " + tx);
-            router.push(`/collection/${address}`);
+            // router.push() removed - waiting for isSynced in useEffect
 
         } catch (err: any) {
             console.error("Minting failed:", err);
             alert("Minting failed: " + (err.message || "Unknown error"));
         }
+    };
+
+    // Loading Text Helper
+    const getLoadingText = () => {
+        if (isUploading) return "Uploading to IPFS...";
+        if (isWritePending) return "Confirm in Wallet...";
+        if (isConfirming) return "Confirming on Blockchain...";
+        if (isApiPending) return "Syncing to Database...";
+        return "Processing...";
     };
 
     if (isLoading) {

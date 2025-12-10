@@ -5,12 +5,12 @@ import Image from 'next/image';
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-[#0092FF] border-t border-gray-200 pt-16 pb-8">
+    <footer className="bg-[#2979FF] border-t border-gray-200 pt-16 pb-8">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
           {/* Contact Section */}
           <div className="col-span-2 md:col-span-1 mb-8 md:mb-0">
-             <Image src="/logo.png" alt="Chaintificate Logo" width={50} height={50} className="mb-4" />
+            <Image src="/logo.png" alt="Chaintificate Logo" width={50} height={50} className="mb-4" />
             <h3 className="text-xl font-bold text-white mb-4">Contact</h3>
             <ul className="text-gray-200 space-y-3">
               <li className="flex items-start">

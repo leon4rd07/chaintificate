@@ -25,11 +25,25 @@ export interface Certificate {
     };
 }
 
+export interface SimpleCertificate {
+    id: string;
+    name: string;
+    tokenUri: string;
+    mintingDate: string;
+    institution: string;
+    image?: string;
+}
+
+export interface StudentCertificatesResponse {
+    certificates: SimpleCertificate[];
+    degrees: SimpleCertificate[];
+}
+
 export const useGetStudentCertificates = (studentId: string | undefined) => {
     return useQuery({
         queryKey: ["student-certificates", studentId],
-        queryFn: async (): Promise<Certificate[]> => {
-            if (!studentId) return [];
+        queryFn: async (): Promise<StudentCertificatesResponse> => {
+            if (!studentId) return { certificates: [], degrees: [] };
 
             const response = await fetch(`/api/student/${studentId}`);
 
@@ -37,32 +51,37 @@ export const useGetStudentCertificates = (studentId: string | undefined) => {
                 throw new Error("Failed to fetch certificates");
             }
 
-            const certificates: Certificate[] = await response.json();
+            const data: StudentCertificatesResponse = await response.json();
 
-            // Fetch metadata for each certificate to get the image
-            const detailedCertificates = await Promise.all(
-                certificates.map(async (cert) => {
-                    try {
-                        if (cert.tokenUri) {
-                            // Handle IPFS URIs if necessary, though simpler if they are HTTP
-                            const uri = cert.tokenUri.startsWith("ipfs://")
-                                ? cert.tokenUri.replace("ipfs://", "https://ipfs.io/ipfs/")
-                                : cert.tokenUri;
+            const fetchImages = async (items: SimpleCertificate[]) => {
+                return Promise.all(
+                    items.map(async (item) => {
+                        try {
+                            if (item.tokenUri) {
+                                const uri = item.tokenUri.startsWith("ipfs://")
+                                    ? item.tokenUri.replace("ipfs://", "https://ipfs.io/ipfs/")
+                                    : item.tokenUri;
 
-                            const metadataResponse = await fetch(uri);
-                            if (metadataResponse.ok) {
-                                const metadata = await metadataResponse.json();
-                                return { ...cert, image: metadata.image };
+                                const metadataResponse = await fetch(uri);
+                                if (metadataResponse.ok) {
+                                    const metadata = await metadataResponse.json();
+                                    return { ...item, image: metadata.image };
+                                }
                             }
+                        } catch (error) {
+                            console.error(`Failed to fetch metadata for cert ${item.id}`, error);
                         }
-                    } catch (error) {
-                        console.error(`Failed to fetch metadata for cert ${cert.id}`, error);
-                    }
-                    return cert;
-                })
-            );
+                        return item;
+                    })
+                );
+            };
 
-            return detailedCertificates;
+            const [certificates, degrees] = await Promise.all([
+                fetchImages(data.certificates),
+                fetchImages(data.degrees),
+            ]);
+
+            return { certificates, degrees };
         },
         enabled: !!studentId,
     });

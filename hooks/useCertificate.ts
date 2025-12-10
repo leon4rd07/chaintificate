@@ -230,6 +230,7 @@ export const useCreateCertificate = () => {
         studentName: string;
     } | null>(null);
     const [isApiPending, setIsApiPending] = useState(false);
+    const [isSynced, setIsSynced] = useState(false);
     const [apiError, setApiError] = useState<string | null>(null);
 
     const {
@@ -255,6 +256,7 @@ export const useCreateCertificate = () => {
 
         setPendingData({ collectionAddress, recipient, tokenURI, certificateName, studentName });
         setApiError(null);
+        setIsSynced(false);
 
         const mintPromise = async () => {
             const tx = await writeContractAsync({
@@ -326,6 +328,8 @@ export const useCreateCertificate = () => {
                             throw new Error(errorData.error || 'Failed to sync with database');
                         }
                         toast.success("Certificate saved to database!");
+                        setIsSynced(true);
+                        setIsSynced(true);
                     } else {
                         console.error("Transfer event not found in transaction logs");
                         setApiError("Failed to retrieve token ID from transaction");
@@ -352,6 +356,7 @@ export const useCreateCertificate = () => {
         isConfirming,
         isConfirmed,
         isApiPending,
+        isSynced,
         error: writeError || receiptError || (apiError ? new Error(apiError) : null)
     };
 };
